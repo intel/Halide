@@ -1,0 +1,25 @@
+#ifndef HALIDE_ALIGN_LOADS_H
+#define HALIDE_ALIGN_LOADS_H
+
+/** \file
+ * Defines a lowering pass that rewrites unaligned loads into
+ * sequences of aligned loads.
+ */
+#include "IR.h"
+#include "Target.h"
+#include "Scope.h"
+#include "ModulusRemainder.h"
+
+namespace Halide {
+namespace Internal {
+
+/** Attempt to rewrite unaligned loads from buffers which are known to
+ * be aligned to instead load aligned vectors that cover the original
+ * load, and then slice the original load out of the aligned
+ * vectors. */
+Stmt align_loads(Stmt s, int alignment, const Scope<ModulusRemainder>& alignment_info);
+
+}
+}
+
+#endif
