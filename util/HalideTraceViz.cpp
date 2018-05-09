@@ -404,6 +404,7 @@ void calc_2d_size(const std::vector<Range> &dims, const std::vector<Point> &stri
         y->min = std::min(y->min, y_off);
         y->extent = std::max(y->extent, y_off);
     } else {
+<<<<<<< 796ef9ef223d8f87a81e898814279ac0cb85cd16
         const auto &m = dims.at(current_dimension);
         const Point &stride = strides.at(current_dimension);
         x_off += stride.x * m.min;
@@ -412,6 +413,19 @@ void calc_2d_size(const std::vector<Range> &dims, const std::vector<Point> &stri
             calc_2d_size(dims, strides, x, y, current_dimension + 1, x_off, y_off);
             x_off += stride.x;
             y_off += stride.y;
+=======
+        int min = p.get_coord(current_dimension * 2 + 0);
+        int extent = p.get_coord(current_dimension * 2 + 1);
+        // If we don't have enough strides, assume subsequent dimensions have stride (0, 0)
+        const Point pt = current_dimension < (int)fi.config.strides.size() ? fi.config.strides[current_dimension] : Point{0, 0};
+        x_off += pt.x * min;
+        y_off += pt.y * min;
+        for (int i = min; i < min + extent; i++) {
+            fill_realization(image, image_size, color, fi, p,
+                current_dimension + 1, x_off, y_off);
+            x_off += pt.x;
+            y_off += pt.y;
+>>>>>>> fixed incompatible compare warning
         }
     }
     if (current_dimension == 0) {
@@ -1105,6 +1119,7 @@ int run(bool ignore_trace_tags, FlagProcessor flag_processor) {
             const int64_t frame_bytes = surface->frame_elems() * sizeof(uint32_t);
 
             while (halide_clock > video_clock) {
+<<<<<<< 796ef9ef223d8f87a81e898814279ac0cb85cd16
                 // Always render text last, since it's on top of everything
                 // and there's no need to re-render for every packet.
                 for (auto it = labels_being_drawn.begin(); it != labels_being_drawn.end(); ) {
@@ -1122,6 +1137,21 @@ int run(bool ignore_trace_tags, FlagProcessor flag_processor) {
                         surface->draw_text(label.text, label.pos, 0xffffff, label.h_scale);
                         it = labels_being_drawn.erase(it);
                     }
+=======
+                // Composite text over anim over image
+                for (int i = 0; i < (int)buffers.image.size(); i++) {
+                    uint8_t *anim_decay_px  = (uint8_t *)(buffers.anim_decay.data() + i);
+                    uint8_t *anim_px  = (uint8_t *)(buffers.anim.data() + i);
+                    uint8_t *image_px = (uint8_t *)(buffers.image.data() + i);
+                    uint8_t *text_px  = (uint8_t *)(buffers.text.data() + i);
+                    uint8_t *blend_px = (uint8_t *)(buffers.blend.data() + i);
+                    // anim over anim_decay
+                    composite(anim_decay_px, anim_px, anim_decay_px);
+                    // anim_decay over image
+                    composite(image_px, anim_decay_px, blend_px);
+                    // text over image
+                    composite(blend_px, text_px, blend_px);
+>>>>>>> fixed incompatible compare warning
                 }
 
                 // Composite text over anim over image
