@@ -316,7 +316,7 @@ void fill_realization(uint32_t *image, const Point &image_size, uint32_t color,
         int min = p.get_coord(current_dimension * 2 + 0);
         int extent = p.get_coord(current_dimension * 2 + 1);
         // If we don't have enough strides, assume subsequent dimensions have stride (0, 0)
-        const Point pt = current_dimension < fi.config.strides.size() ? fi.config.strides[current_dimension] : Point{0, 0};
+        const Point pt = current_dimension < (int)fi.config.strides.size() ? fi.config.strides[current_dimension] : Point{0, 0};
         x_off += pt.x * min;
         y_off += pt.y * min;
         for (int i = min; i < min + extent; i++) {
@@ -597,7 +597,7 @@ int run(int argc, char **argv) {
 
             while (halide_clock > video_clock) {
                 // Composite text over anim over image
-                for (int i = 0; i < buffers.image.size(); i++) {
+                for (int i = 0; i < (int)buffers.image.size(); i++) {
                     uint8_t *anim_decay_px  = (uint8_t *)(buffers.anim_decay.data() + i);
                     uint8_t *anim_px  = (uint8_t *)(buffers.anim.data() + i);
                     uint8_t *image_px = (uint8_t *)(buffers.image.data() + i);
